@@ -33,37 +33,25 @@ function App() {
     const fetchIngredients = async () => {
       const response = await fetch('https://www.themealdb.com/api/json/v1/1/list.php?i=list');
       const data = await response.json();
-      setIngredients(data.meals);
-      setFilteredIngredients(data.meals);
+      const meals = data.meals.map((meal) => {
+        return {
+          ...meal,
+          thumbnail: `https://www.themealdb.com/images/ingredients/${meal.strIngredient}-Small.png`
+        }
+      })
+      if (data.meals) {
+
+        setIngredients(meals);
+        setFilteredIngredients(meals);
+      } else {
+        setIngredients([]);
+        setFilteredIngredients([]);
+      }
     }
 
     fetchIngredients()
   }, [])
 
-  /*
-  <main className="bg-yellow-50 min-h-screen ">
-        <div className='flex justify-between items-center p-4 fixed bg-white w-full'>
-          <h2 className='text-2xl font-bold'>{selectedIngredient}</h2>
-          <div className='text-sm text-gray-600 font-medium'>Total Recipes Found {recipes.length} </div>
-        </div>
-        <div className='flex pt-16'>
-          <div className='p-4 border-r w-1/5 flex flex-col h-screen space-y-2'>
-            <div>
-              <h2 className='font-bold'>Ingredients</h2>
-              <input type='text' placeholder='Search' className='border w-full p-2 rounded-lg' onKeyUp={(e) => onKeyUp(e)} />
-            </div>
-            <div className='bg-white p-2 rounded-lg h-screen overflow-scroll flex-1 border cursor-pointer'>
-              
-            </div>
-          </div>
-          <div className='overflow-scroll h-screen w-4/5'>
-  
-            
-          </div>
-        </div>
-      </main>
-  
-  */
   return (
     <div className='flex h-screen py-8'>
       <div className='w-1/5 px-4 flex flex-col'>
@@ -73,12 +61,25 @@ function App() {
         </div>
         <div className='flex-1 overflow-scroll cursor-pointer'>
           {
-            filteredIngredients.map((ingredient) => <div onClick={() => fetchRecipes(ingredient.strIngredient)} className='p-2 rounded-lg px-4 hover:bg-blue-100' key={ingredient.idIngredient}>{ingredient.strIngredient}</div>)
+            filteredIngredients.map((ingredient) => <div onClick={() => fetchRecipes(ingredient.strIngredient)}
+              className='p-2 rounded-lg px-2 space-x-4 border-b border-gray-100 hover:bg-blue-100 flex  items-center' key={ingredient.idIngredient}>
+              <div>
+                <img className='w-8 rounded' src={ingredient.thumbnail} alt={ingredient.thumbnail}></img>
+              </div>
+              <div>
+                {ingredient.strIngredient}
+              </div>
+
+            </div>)
           }
         </div>
       </div>
       <div className='w-4/5 px-4 border-l overflow-scroll'>
-        <div className='grid grid-cols-4 gap-4'>
+        <div className='justify-between mb-2 -ml-4 fixed bg-white px-4 border p-2 rounded-r-xl shadow-xl'>
+          <h2 className='text-gray-700 font-bold text-lg'>Recipes with {selectedIngredient}</h2>
+          <div className='text-gray-500 text-sm'> Total Number of Recipes {recipes.length} </div>
+        </div>
+        <div className='grid grid-cols-4 gap-8 mt-20'>
           {
             recipes.map((recipe) => <RecipeCard key={recipe.idMeal} recipe={recipe} />)
           }
